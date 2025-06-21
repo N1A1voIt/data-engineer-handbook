@@ -1,10 +1,10 @@
 WITH last_season AS (
     SELECT * FROM players
-    WHERE current_season = 1997
+    WHERE current_season = 2000
 
 ), this_season AS (
      SELECT * FROM player_seasons
-    WHERE season = 1998
+    WHERE season = 2001
 )
 INSERT INTO players
 SELECT
@@ -34,10 +34,15 @@ SELECT
                     ELSE 'bad' END)::scoring_class
              ELSE ls.scoring_class
          END as scoring_class,
+         CASE WHEN ts.season IS NOT NULL THEN 0
+             ELSE ls.years_since_last_active + 1
+         END as years_since_last_active,
          ts.season IS NOT NULL as is_active,
-         1998 AS current_season
-
+         COALESCE(ts.season,ls.current_season + 1) AS current_season
     FROM last_season ls
     FULL OUTER JOIN this_season ts
-    ON ls.player_name = ts.player_name
+    ON ls.player_name = ts.player_name;
+
+
+
 
