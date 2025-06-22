@@ -4,13 +4,13 @@ CREATE TYPE scd_type AS (
                     is_active boolean,
                     start_season INTEGER,
                     end_season INTEGER
-                        )
+                        );
 
 
 WITH last_season_scd AS (
     SELECT * FROM players_scd
     WHERE current_season = 2021
-    AND end_season = 2021
+    AND end_date = 2021
 ),
      historical_scd AS (
         SELECT
@@ -18,10 +18,10 @@ WITH last_season_scd AS (
                scoring_class,
                is_active,
                start_season,
-               end_season
+               end_date
         FROM players_scd
         WHERE current_season = 2021
-        AND end_season < 2021
+        AND end_date < 2021
      ),
      this_season_data AS (
          SELECT * FROM players
@@ -48,7 +48,7 @@ WITH last_season_scd AS (
                         ls.scoring_class,
                         ls.is_active,
                         ls.start_season,
-                        ls.end_season
+                        ls.end_date
 
                         )::scd_type,
                     ROW(

@@ -1,3 +1,4 @@
+INSERT INTO vertices
 WITH teams_deduped AS (
     SELECT *, ROW_NUMBER() OVER(PARTITION BY team_id) as row_num
     FROM teams
@@ -13,4 +14,6 @@ SELECT
         'year_founded', yearfounded
         )
 FROM teams_deduped
-WHERE row_num = 1
+WHERE row_num = 1;
+
+SELECT type,count(1) from vertices GROUP BY type;

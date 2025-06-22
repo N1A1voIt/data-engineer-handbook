@@ -29,5 +29,5 @@ WITH streak_started AS (
          GROUP BY 1,2,3
      )
 
-     SELECT player_name, scoring_class, start_date, end_date
+     SELECT player_name, scoring_class, start_date, end_date,streak_identifier
      FROM aggregated
