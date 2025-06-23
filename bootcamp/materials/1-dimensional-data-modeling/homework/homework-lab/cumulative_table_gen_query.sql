@@ -17,5 +17,5 @@ select actorid,MAX(actor) as actor,
             WHEN avg(rating) <= 6 THEN 'bad'::quality_class END as quality_class,
         CASE WHEN (SELECT year FROM actors_year WHERE actor_films.actorid = actors_year.actorid) = 2021 THEN true ELSE false END as is_active,
         year
-from actor_films WHERE year = 1985
+from actor_films WHERE year = 2021
 group by actorid,year;
