@@ -17,5 +17,3 @@ CREATE TABLE actors (
     year INTEGER,
     PRIMARY KEY (actorid,year)
 );
-
-SELECT * FROM actor_films WHERE year = 2021;
