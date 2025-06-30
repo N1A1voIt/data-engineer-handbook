@@ -1,3 +1,4 @@
+INSERT INTO fct_game_details
 WITH deduped_datasets as (
     SELECT game_date_est,
         season,
@@ -19,8 +20,24 @@ SELECT game_date_est as dim_game_date,
        COALESCE(position('DNP' in comment) > 0,false) as dim_did_not_play,
        COALESCE(position('DND' in comment) > 0,false) as dim_not_dress,
        (split_part(min,':',1)::real + split_part(min,':',2)::real/60) as m_minutes,
-       
-       FROM deduped_datasets;
+       fgm as m_fgm,
+       fga as m_fga,
+       fg3m as m_fg3m,
+       fg3a as m_fg3a,
+       ftm as m_ftm,
+       fta as m_fta,
+       ft_pct as m_ft_pct,
+       oreb as m_oreb,
+       dreb as m_dreb,
+       reb as m_reb,
+       ast as m_ast,
+       stl as m_stl,
+       blk as m_blk,
+       "TO" as m_turnover,
+       pf as m_pf,
+       pts as m_pts,
+       plus_minus as m_plus_minus
+       FROM deduped_datasets WHERE row_num=1;
 
 CREATE TABLE fct_game_details (
     dim_game_date date,
