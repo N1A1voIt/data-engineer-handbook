@@ -7,7 +7,7 @@ WITH daily_aggregate AS (
         DATE(event_time) AS date,
         COUNT(1) AS num_site_hits
     FROM events
-    WHERE DATE(event_time) = DATE('2023-01-01')
+    WHERE DATE(event_time) = DATE('2023-01-02')
     AND user_id IS NOT NULL
     GROUP BY user_id, DATE(event_time)
 ),
@@ -57,3 +57,6 @@ SELECT
     elem AS value
 FROM agg
 CROSS JOIN UNNEST(agg.summed_array) WITH ORDINALITY AS a(elem, index);
+
+
+SELECT DATE_TRUNC('month', date(event_time)) FROM events;

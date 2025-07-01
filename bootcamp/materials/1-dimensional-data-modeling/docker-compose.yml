@@ -1,4 +1,4 @@
-services:
+dockservices:
   postgres:
     image: postgres:14
     restart: on-failure
