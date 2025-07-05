@@ -18,4 +18,4 @@ SELECT COALESCE(yesterday_data.host_id,today_data.host_id) as host_id
        yesterday_data.date_lim + interval '1 day' as date_lim
     FROM today_data FULL OUTER JOIN yesterday_data on yesterday_data.host_id = today_data.host_id;
 
-SELECT DISTINCT(host) FROM events;
+SELECT date_trunc('month',DATE(event_time)) FROM events;
