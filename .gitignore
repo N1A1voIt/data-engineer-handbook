@@ -1,2 +1,5 @@
 .idea/
 .DS_Store
+/bootcamp/materials/3-spark-fundamentals/src/__pycache__
+/bootcamp/materials/3-spark-fundamentals/src/jobs/__pycache__
+/bootcamp/materials/3-spark-fundamentals/src/tests/__pycache__
