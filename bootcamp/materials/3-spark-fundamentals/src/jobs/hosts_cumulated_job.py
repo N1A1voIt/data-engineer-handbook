@@ -1,10 +1,7 @@
-CREATE TABLE hosts_cumulated (
-    host_id text ,
-    dates DATE[],
-    date_lim date,
-    PRIMARY KEY (host_id,date_lim)
-);
-INSERT INTO hosts_cumulated
+from pyspark.sql import SparkSession
+
+
+sql="""
 WITH yesterday_data AS (
     SELECT * FROM hosts_cumulated WHERE date_lim = DATE('2023-01-30')
 ),today_data as (
@@ -16,6 +13,11 @@ SELECT COALESCE(yesterday_data.host_id,today_data.host_id) as host_id
             CASE WHEN today_data.host_id IS NULL OR today_data.date_lim IS NULL THEN ARRAY[]::date[]
             ELSE ARRAY[today_data.date_lim] END as dates,
        yesterday_data.date_lim + interval '1 day' as date_lim
-    FROM today_data FULL OUTER JOIN yesterday_data on yesterday_data.host_id = today_data.host_idoutput;
+    FROM today_data FULL OUTER JOIN yesterday_data on yesterday_data.host_id = today_data.host_id;
+"""
 
-SELECT date_trunc('month',DATE(event_time)) FROM events;
+
+def do_host_cumulation_transformation(spark, dataframe):
+    dataframe.createOrReplaceTempView("hosts_cumulated")
+    dataframe.createOrReplaceTempView("events")
+    return spark.sql(sql)
