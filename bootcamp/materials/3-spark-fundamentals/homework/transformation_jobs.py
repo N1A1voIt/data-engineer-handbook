@@ -93,14 +93,14 @@ matches = spark.table("bootcamp.matches_bucketed")
 match_details = spark.table("bootcamp.match_details_bucketed")
 medal_matches = spark.table("bootcamp.medals_matches_players_bucketed")
 
-# ✅ Broadcast join maps to matches
+# Broadcast join maps to matches
 matches_with_maps = matches.join(broadcast(maps_df), on="mapid", how="left")
 matches_with_maps.select("match_id", "map_name", "playlist_id").show(5)
 
-# ✅ Broadcast join medals to medal_matches
+# Broadcast join medals to medal_matches
 medal_matches_named = medal_matches.join(broadcast(medals_df), on="medal_id", how="left")
 
-# 🔍 Aggregation 1: Which player averages the most kills per game?
+# Aggregation 1: Which player averages the most kills per game?
 most_kills_per_game = match_details.groupBy("player_gamertag") \
     .agg((sum("player_total_kills") / countDistinct("match_id")).alias("avg_kills_per_game")) \
     .orderBy(col("avg_kills_per_game").desc())
