@@ -1,4 +1,38 @@
 services:
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    container_name: flink-postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  postgres-init:
+    image: postgres:14
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./db_backup.dump:/tmp/db_backup.dump
+      - ./scripts/restore-db.sh:/tmp/restore-db.sh
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGPASSWORD=postgres
+    command: ["bash", "/tmp/restore-db.sh"]
+
   jobmanager:
     build: .
     image: eczachly-pyflink
@@ -16,10 +50,15 @@ services:
       - ./:/opt/flink/usrlib
       - ./src/:/opt/src
     command: jobmanager
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
     extra_hosts:
-      - "host.docker.internal:host-gateway" #// Access services on the host machine from within the Docker container
+      - "host.docker.internal:host-gateway"
     environment:
-      - POSTGRES_URL=${POSTGRES_URL:-jdbc:postgresql://host.docker.internal:5432/postgres}
+      - POSTGRES_URL=jdbc:postgresql://flink-postgres:5432/postgres
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-postgres}
@@ -27,7 +66,6 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
 
-  # Flink task manager
   taskmanager:
     image: eczachly-pyflink
     pull_policy: never
@@ -42,13 +80,21 @@ services:
       - ./:/opt/flink/usrlib
       - ./src/:/opt/src
     depends_on:
-      - jobmanager
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      jobmanager:
+        condition: service_started
     command: taskmanager --taskmanager.registration.timeout 5 min
     extra_hosts:
-      - "host.docker.internal:host-gateway" #// Access services on the host machine from within the Docker container
+      - "host.docker.internal:host-gateway"
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 15
         parallelism.default: 3
+
+volumes:
+  postgres-data:

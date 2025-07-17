@@ -36,7 +36,7 @@ build:
 .PHONY: up
 ## Builds the base Docker image and starts Flink cluster
 up:
-	docker compose --env-file flink-env.env up --build --remove-orphans  -d
+	docker compose --env-file flink-env.env up --build --remove-orphans
 
 .PHONY: down
 ## Shuts down the Flink cluster
